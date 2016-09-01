@@ -848,6 +848,25 @@ endef
 
 $(eval $(call KernelPackage,random-omap))
 
+
+define KernelPackage/random-tpm
+  TITLE:= TPM hardware random support
+  SUBMENU:=$(OTHER_MENU)
+  KCONFIG:= \
+    CONFIG_HW_RANDOM_TPM=y
+  FILES:= \
+    $(LINUX_DIR)/drivers/char/hw_random/tpm-rng.ko
+  AUTOLOAD:= $(call AutoProbe, tpm-rng)
+  DEPENDS:=+kmod-random-core kmod-tpm
+endef
+
+define KernelPackage/random-tpm/description
+  TPM backed random support.
+endef
+
+$(eval $(call KernelPackage,random-tpm))
+
+
 define KernelPackage/thermal
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Generic Thermal sysfs driver
@@ -959,3 +978,75 @@ define KernelPackage/bmp085-spi/description
 endef
 
 $(eval $(call KernelPackage,bmp085-spi))
+
+
+define KernelPackage/virtio-pci
+  SUBMENU:=$(OTHER_MENU)
+  DEPENDS:= @PCI_SUPPORT
+  TITLE:=Virtio PCI support
+  KCONFIG:= CONFIG_VIRTIO CONFIG_VIRTIO_PCI
+  FILES:=\
+	$(LINUX_DIR)/drivers/virtio/virtio_pci.ko \
+	$(LINUX_DIR)/drivers/virtio/virtio.ko \
+	$(LINUX_DIR)/drivers/virtio/virtio_ring.ko
+  AUTOLOAD:=$(call AutoProbe,virtio virtio_ring virtio_pci)
+endef
+define KernelPackage/virtio-pci/description
+ This driver adds virtio PCI support.
+endef
+
+$(eval $(call KernelPackage,virtio-pci))
+
+
+define KernelPackage/virtio-mmio
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Virtio MMIO support
+  KCONFIG:= CONFIG_VIRTIO CONFIG_VIRTIO_MMIO
+  FILES:= \
+	$(LINUX_DIR)/drivers/virtio/virtio.ko \
+	$(LINUX_DIR)/drivers/virtio/virtio_ring.ko \
+	$(LINUX_DIR)/drivers/virtio/virtio_mmio.ko
+  AUTOLOAD:=$(call AutoProbe,virtio virtio_ring virtio_mmio)
+endef
+define KernelPackage/virtio-mmio/description
+ This driver adds virtio MMIO support.
+endef
+
+$(eval $(call KernelPackage,virtio-mmio))
+
+
+define KernelPackage/tpm
+  TITLE:= TPM support
+  SUBMENU:=$(OTHER_MENU)
+  KCONFIG:= \
+    CONFIG_TCG_TPM=y
+  FILES:= \
+    $(LINUX_DIR)/drivers/char/tpm/tpm.ko
+  AUTOLOAD:= $(call AutoProbe, tpm)
+endef
+
+define KernelPackage/tpm/description
+  TPM support.
+endef
+
+$(eval $(call KernelPackage,tpm))
+
+
+define KernelPackage/tpm-i2c-infineon
+  TITLE:= TPM 1.2 infineon i2c driver
+  SUBMENU:=$(OTHER_MENU)
+  KCONFIG:= \
+    CONFIG_TCG_TIS_I2C_INFINEON=y
+  FILES:= \
+    $(LINUX_DIR)/drivers/char/tpm/tpm_i2c_infineon.ko
+  AUTOLOAD:= $(call AutoProbe, tpm_i2c_infineon)
+  DEPENDS:=+kmod-tpm kmod-i2c-core
+endef
+
+define KernelPackage/tpm-i2c-infineon/description
+  TPM 1.2 support for infineon i2c devices.
+endef
+
+$(eval $(call KernelPackage,tpm-i2c-infineon))
+
+
