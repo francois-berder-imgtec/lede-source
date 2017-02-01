@@ -648,6 +648,26 @@ endef
 $(eval $(call KernelPackage,serial-8250))
 
 
+define KernelPackage/serial-sc16is7xx
+  TITLE:= SC16IS7xx serial driver
+  DEPENDS:=+kmod-i2c-core
+  SUBMENU:=$(OTHER_MENU)
+  KCONFIG:= \
+	CONFIG_SERIAL_SC16IS7XX=y \
+	CONFIG_SERIAL_SC16IS7XX_CORE \
+	CONFIG_SERIAL_SC16IS7XX_I2C=y \
+	CONFIG_SERIAL_SC16IS7XX_SPI=y
+  FILES:= $(LINUX_DIR)/drivers/tty/serial/sc16is7xx.ko
+  AUTOLOAD:= $(call AutoLoad,22, sc16is7xx)
+endef
+
+define KernelPackage/serial-sc16is7xx/description
+ Kernel module for SC16IS7xx based serial ports
+endef
+
+$(eval $(call KernelPackage,serial-sc16is7xx))
+
+
 define KernelPackage/regmap
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Generic register map support
