@@ -1,0 +1,8 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+start() {
+	# Mark successful boot by resetting boot count
+	echo 0 > $(ls -1 /sys/devices/platform/*uboot-count/bootcount)
+}
