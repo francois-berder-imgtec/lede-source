@@ -1,0 +1,39 @@
+From a8e3b3265a429fb7949edaf6d5202d1bb7192ab2 Mon Sep 17 00:00:00 2001
+From: Vladimir Zapolskiy <vz@mleia.com>
+Date: Tue, 22 Mar 2016 01:42:07 +0200
+Subject: [PATCH 23/50] clocksource/drivers/pistachio: Correct output format of
+ PTR_ERR()
+
+Use signed integer output in the pr_err() string format, here PTR_ERR() value
+is negative and it should be reported in human readable way.
+
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+Cc: Jisheng Zhang <jszhang@marvell.com>
+Cc: Ezequiel Garcia <ezequiel.garcia@imgtec.com>
+Cc: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: http://lkml.kernel.org/r/1458603727-4446-1-git-send-email-vz@mleia.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+---
+ drivers/clocksource/time-pistachio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/clocksource/time-pistachio.c
++++ b/drivers/clocksource/time-pistachio.c
+@@ -163,7 +163,7 @@ static void __init pistachio_clksrc_of_i
+ 
+ 	periph_regs = syscon_regmap_lookup_by_phandle(node, "img,cr-periph");
+ 	if (IS_ERR(periph_regs)) {
+-		pr_err("cannot get peripheral regmap (%lu)\n",
++		pr_err("cannot get peripheral regmap (%ld)\n",
+ 		       PTR_ERR(periph_regs));
+ 		return;
+ 	}
+@@ -176,7 +176,7 @@ static void __init pistachio_clksrc_of_i
+ 
+ 	sys_clk = of_clk_get_by_name(node, "sys");
+ 	if (IS_ERR(sys_clk)) {
+-		pr_err("clock get failed (%lu)\n", PTR_ERR(sys_clk));
++		pr_err("clock get failed (%ld)\n", PTR_ERR(sys_clk));
+ 		return;
+ 	}
+ 

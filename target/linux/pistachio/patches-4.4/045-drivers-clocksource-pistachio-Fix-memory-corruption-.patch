@@ -1,0 +1,37 @@
+From dd72596ac64cf5cb0331927abf771a5db3bc2ac9 Mon Sep 17 00:00:00 2001
+From: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+Date: Wed, 17 Aug 2016 12:22:33 +0200
+Subject: [PATCH 45/50] drivers/clocksource/pistachio: Fix memory corruption in
+ init
+
+Driver init code incorrectly uses the block base address and as a result
+clears clocksource structure's fields instead of the hardware registers.
+
+Commit 09a998201649 ("timekeeping: Lift clocksource cacheline
+restriction") has changed the offsets within pistachio_clocksource
+structure and what has previously gone unnoticed now leads to a kernel
+panic during boot.
+
+Signed-off-by: Marcin Nowakowski <marcin.nowakowski@imgtec.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+---
+ drivers/clocksource/time-pistachio.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/drivers/clocksource/time-pistachio.c
++++ b/drivers/clocksource/time-pistachio.c
+@@ -202,10 +202,10 @@ static void __init pistachio_clksrc_of_i
+ 	rate = clk_get_rate(fast_clk);
+ 
+ 	/* Disable irq's for clocksource usage */
+-	gpt_writel(&pcs_gpt.base, 0, TIMER_IRQ_MASK, 0);
+-	gpt_writel(&pcs_gpt.base, 0, TIMER_IRQ_MASK, 1);
+-	gpt_writel(&pcs_gpt.base, 0, TIMER_IRQ_MASK, 2);
+-	gpt_writel(&pcs_gpt.base, 0, TIMER_IRQ_MASK, 3);
++	gpt_writel(pcs_gpt.base, 0, TIMER_IRQ_MASK, 0);
++	gpt_writel(pcs_gpt.base, 0, TIMER_IRQ_MASK, 1);
++	gpt_writel(pcs_gpt.base, 0, TIMER_IRQ_MASK, 2);
++	gpt_writel(pcs_gpt.base, 0, TIMER_IRQ_MASK, 3);
+ 
+ 	/* Enable timer block */
+ 	writel(TIMER_ME_GLOBAL, pcs_gpt.base);

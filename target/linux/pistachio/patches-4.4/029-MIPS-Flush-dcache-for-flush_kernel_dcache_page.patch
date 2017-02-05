@@ -1,0 +1,35 @@
+From 6d8f5825a707371f3f86ad1b7312aabc20fd49d5 Mon Sep 17 00:00:00 2001
+From: Paul Burton <paul.burton@imgtec.com>
+Date: Tue, 1 Mar 2016 02:37:56 +0000
+Subject: [PATCH 29/50] MIPS: Flush dcache for flush_kernel_dcache_page
+
+The flush_kernel_dcache_page function was previously essentially a nop.
+This is incorrect for MIPS, where if a page has been modified & either
+it aliases or it's executable & the icache doesn't fill from dcache then
+the content needs to be written back from dcache to the next level of
+the cache hierarchy (which is shared with the icache).
+
+Implement this by simply calling flush_dcache_page, treating this
+kmapped cache flush function (flush_kernel_dcache_page) exactly the same
+as its non-kmapped counterpart (flush_dcache_page).
+
+Signed-off-by: Paul Burton <paul.burton@imgtec.com>
+Cc: Lars Persson <lars.persson@axis.com>
+Cc: linux-mips@linux-mips.org
+Cc: linux-kernel@vger.kernel.org
+Patchwork: https://patchwork.linux-mips.org/patch/12719/
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+---
+ arch/mips/include/asm/cacheflush.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/arch/mips/include/asm/cacheflush.h
++++ b/arch/mips/include/asm/cacheflush.h
+@@ -126,6 +126,7 @@ static inline void kunmap_noncoherent(vo
+ static inline void flush_kernel_dcache_page(struct page *page)
+ {
+ 	BUG_ON(cpu_has_dc_aliases && PageHighMem(page));
++	flush_dcache_page(page);
+ }
+ 
+ /*

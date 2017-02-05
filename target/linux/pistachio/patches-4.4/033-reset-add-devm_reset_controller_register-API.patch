@@ -1,0 +1,89 @@
+From 0b43a849476136558d78080428aa818ef2d3bf69 Mon Sep 17 00:00:00 2001
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
+Date: Sun, 1 May 2016 19:36:57 +0900
+Subject: [PATCH 33/50] reset: add devm_reset_controller_register API
+
+Add a device managed API for reset_controller_register().
+
+This helps in reducing code in .remove callbacks and sometimes
+dropping .remove callbacks entirely.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Acked-by: Laxman Dewangan <ldewangan@nvidia.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+---
+ Documentation/driver-model/devres.txt |  4 ++++
+ drivers/reset/core.c                  | 37 +++++++++++++++++++++++++++++++++++
+ include/linux/reset-controller.h      |  4 ++++
+ 3 files changed, 45 insertions(+)
+
+--- a/Documentation/driver-model/devres.txt
++++ b/Documentation/driver-model/devres.txt
+@@ -335,6 +335,10 @@ REGULATOR
+   devm_regulator_put()
+   devm_regulator_register()
+ 
++RESET
++  devm_reset_control_get()
++  devm_reset_controller_register()
++
+ SLAVE DMA ENGINE
+   devm_acpi_dma_controller_register()
+ 
+--- a/drivers/reset/core.c
++++ b/drivers/reset/core.c
+@@ -86,6 +86,43 @@ void reset_controller_unregister(struct
+ }
+ EXPORT_SYMBOL_GPL(reset_controller_unregister);
+ 
++static void devm_reset_controller_release(struct device *dev, void *res)
++{
++	reset_controller_unregister(*(struct reset_controller_dev **)res);
++}
++
++/**
++ * devm_reset_controller_register - resource managed reset_controller_register()
++ * @dev: device that is registering this reset controller
++ * @rcdev: a pointer to the initialized reset controller device
++ *
++ * Managed reset_controller_register(). For reset controllers registered by
++ * this function, reset_controller_unregister() is automatically called on
++ * driver detach. See reset_controller_register() for more information.
++ */
++int devm_reset_controller_register(struct device *dev,
++				   struct reset_controller_dev *rcdev)
++{
++	struct reset_controller_dev **rcdevp;
++	int ret;
++
++	rcdevp = devres_alloc(devm_reset_controller_release, sizeof(*rcdevp),
++			      GFP_KERNEL);
++	if (!rcdevp)
++		return -ENOMEM;
++
++	ret = reset_controller_register(rcdev);
++	if (!ret) {
++		*rcdevp = rcdev;
++		devres_add(dev, rcdevp);
++	} else {
++		devres_free(rcdevp);
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(devm_reset_controller_register);
++
+ /**
+  * reset_control_reset - reset the controlled device
+  * @rstc: reset controller
+--- a/include/linux/reset-controller.h
++++ b/include/linux/reset-controller.h
+@@ -51,4 +51,8 @@ struct reset_controller_dev {
+ int reset_controller_register(struct reset_controller_dev *rcdev);
+ void reset_controller_unregister(struct reset_controller_dev *rcdev);
+ 
++struct device;
++int devm_reset_controller_register(struct device *dev,
++				   struct reset_controller_dev *rcdev);
++
+ #endif

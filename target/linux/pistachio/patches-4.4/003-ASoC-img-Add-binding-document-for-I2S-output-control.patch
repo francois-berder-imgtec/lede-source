@@ -1,0 +1,70 @@
+From 744b9842b7e76abaf0fef106eff54e2c9b396262 Mon Sep 17 00:00:00 2001
+From: "Damien.Horsley" <Damien.Horsley@imgtec.com>
+Date: Wed, 4 Nov 2015 14:40:49 +0000
+Subject: [PATCH 03/50] ASoC: img: Add binding document for I2S output
+ controller
+
+Add binding document for Imagination Technologies I2S output
+controller
+
+Signed-off-by: Damien.Horsley <Damien.Horsley@imgtec.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ .../devicetree/bindings/sound/img,i2s-out.txt      | 51 ++++++++++++++++++++++
+ 1 file changed, 51 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/sound/img,i2s-out.txt
+
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/img,i2s-out.txt
+@@ -0,0 +1,51 @@
++Imagination Technologies I2S Output Controller
++
++Required Properties:
++
++  - compatible : Compatible list, must contain "img,i2s-out"
++
++  - #sound-dai-cells : Must be equal to 0
++
++  - reg : Offset and length of the register set for the device
++
++  - clocks : Contains an entry for each entry in clock-names
++
++  - clock-names : Must include the following entries:
++	"sys"	The system clock
++	"ref"	The reference clock
++
++  - dmas: Contains an entry for each entry in dma-names.
++
++  - dma-names: Must include the following entry:
++	"tx"	Single DMA channel used by all active I2S channels
++
++  - img,i2s-channels : Number of I2S channels instantiated in the I2S out block
++
++  - resets: Contains a phandle to the I2S out reset signal
++
++  - reset-names: Contains the reset signal name "rst"
++
++Optional Properties:
++
++  - interrupts : Contains the I2S out interrupts. Depending on
++	the configuration, there may be no interrupts, one interrupt,
++	or an interrupt per I2S channel. For the case where there is
++	one interrupt per channel, the interrupts should be listed
++	in ascending channel order
++
++Example:
++
++i2s_out: i2s-out@18100A00 {
++	compatible = "img,i2s-out";
++	reg = <0x18100A00 0x200>;
++	interrupts = <GIC_SHARED 13 IRQ_TYPE_LEVEL_HIGH>;
++	dmas = <&mdc 23 0xffffffff 0>;
++	dma-names = "tx";
++	clocks = <&cr_periph SYS_CLK_I2S_OUT>,
++		 <&clk_core CLK_I2S>;
++	clock-names = "sys", "ref";
++	img,i2s-channels = <6>;
++	resets = <&pistachio_reset PISTACHIO_RESET_I2S_OUT>;
++	reset-names = "rst";
++	#sound-dai-cells = <0>;
++};

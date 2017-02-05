@@ -1,0 +1,89 @@
+From 2931e3efb67be004d49628b7b37ea2cc867b22e9 Mon Sep 17 00:00:00 2001
+From: James Hartley <James.Hartley@imgtec.com>
+Date: Tue, 19 Apr 2016 15:46:55 +0100
+Subject: [PATCH 31/50] MIPS: pistachio: Determine SoC revision during boot
+
+Now that there are different revisions of the Pistachio SoC
+in circulation, add this information to the boot log to make
+it easier for users to determine which hardware they have.
+
+Signed-off-by: James Hartley <james.hartley@imgtec.com>
+Signed-off-by: Ionela Voinescu <ionela.voinescu@imgtec.com>
+Cc: Andrew Bresticker <abrestic@chromium.org>
+Cc: Jonas Gorski <jogo@openwrt.org>
+Cc: James Hogan <james.hogan@imgtec.com>
+Cc: linux-mips@linux-mips.org
+Cc: linux-kernel@vger.kernel.org
+Patchwork: https://patchwork.linux-mips.org/patch/13130/
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+---
+ arch/mips/pistachio/init.c | 35 ++++++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
+
+--- a/arch/mips/pistachio/init.c
++++ b/arch/mips/pistachio/init.c
+@@ -2,6 +2,7 @@
+  * Pistachio platform setup
+  *
+  * Copyright (C) 2014 Google, Inc.
++ * Copyright (C) 2016 Imagination Technologies
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms and conditions of the GNU General Public License,
+@@ -9,6 +10,7 @@
+  */
+ 
+ #include <linux/init.h>
++#include <linux/io.h>
+ #include <linux/kernel.h>
+ #include <linux/of_address.h>
+ #include <linux/of_fdt.h>
+@@ -24,9 +26,38 @@
+ #include <asm/smp-ops.h>
+ #include <asm/traps.h>
+ 
++/*
++ * Core revision register decoding
++ * Bits 23 to 20: Major rev
++ * Bits 15 to 8: Minor rev
++ * Bits 7 to 0: Maintenance rev
++ */
++#define PISTACHIO_CORE_REV_REG	0xB81483D0
++#define PISTACHIO_CORE_REV_A1	0x00100006
++#define PISTACHIO_CORE_REV_B0	0x00100106
++
+ const char *get_system_type(void)
+ {
+-	return "IMG Pistachio SoC";
++	u32 core_rev;
++	const char *sys_type;
++
++	core_rev = __raw_readl((const void *)PISTACHIO_CORE_REV_REG);
++
++	switch (core_rev) {
++	case PISTACHIO_CORE_REV_B0:
++		sys_type = "IMG Pistachio SoC (B0)";
++		break;
++
++	case PISTACHIO_CORE_REV_A1:
++		sys_type = "IMG Pistachio SoC (A1)";
++		break;
++
++	default:
++		sys_type = "IMG Pistachio SoC";
++		break;
++	}
++
++	return sys_type;
+ }
+ 
+ static void __init plat_setup_iocoherency(void)
+@@ -109,6 +140,8 @@ void __init prom_init(void)
+ 	mips_cm_probe();
+ 	mips_cpc_probe();
+ 	register_cps_smp_ops();
++
++	pr_info("SoC Type: %s\n", get_system_type());
+ }
+ 
+ void __init prom_free_prom_memory(void)

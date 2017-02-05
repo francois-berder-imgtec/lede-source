@@ -1,0 +1,40 @@
+From a92543842ee97e6b8cd3ff4925d07983308ace71 Mon Sep 17 00:00:00 2001
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Date: Mon, 8 Aug 2016 08:46:59 +0000
+Subject: [PATCH 47/50] ASoC: codec duplicated callback function goes to
+ component on pistachio-internal-dac
+
+codec driver and component driver has duplicated callback functions,
+and codec side functions are just copied to component side when
+register timing. This was quick-hack, but no longer needed.
+This patch moves these functions from codec driver to component driver.
+
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ sound/soc/img/pistachio-internal-dac.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+--- a/sound/soc/img/pistachio-internal-dac.c
++++ b/sound/soc/img/pistachio-internal-dac.c
+@@ -134,12 +134,14 @@ static int pistachio_internal_dac_codec_
+ static const struct snd_soc_codec_driver pistachio_internal_dac_driver = {
+ 	.probe = pistachio_internal_dac_codec_probe,
+ 	.idle_bias_off = true,
+-	.controls = pistachio_internal_dac_snd_controls,
+-	.num_controls = ARRAY_SIZE(pistachio_internal_dac_snd_controls),
+-	.dapm_widgets = pistachio_internal_dac_widgets,
+-	.num_dapm_widgets = ARRAY_SIZE(pistachio_internal_dac_widgets),
+-	.dapm_routes = pistachio_internal_dac_routes,
+-	.num_dapm_routes = ARRAY_SIZE(pistachio_internal_dac_routes),
++	.component_driver = {
++		.controls		= pistachio_internal_dac_snd_controls,
++		.num_controls		= ARRAY_SIZE(pistachio_internal_dac_snd_controls),
++		.dapm_widgets		= pistachio_internal_dac_widgets,
++		.num_dapm_widgets	= ARRAY_SIZE(pistachio_internal_dac_widgets),
++		.dapm_routes		= pistachio_internal_dac_routes,
++		.num_dapm_routes	= ARRAY_SIZE(pistachio_internal_dac_routes),
++	},
+ };
+ 
+ static int pistachio_internal_dac_probe(struct platform_device *pdev)

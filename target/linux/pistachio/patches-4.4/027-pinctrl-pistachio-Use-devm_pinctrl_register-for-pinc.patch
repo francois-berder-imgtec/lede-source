@@ -1,0 +1,27 @@
+From 79799076368c4ca60cd5229955f35ce1134de142 Mon Sep 17 00:00:00 2001
+From: Laxman Dewangan <ldewangan@nvidia.com>
+Date: Wed, 24 Feb 2016 14:44:07 +0530
+Subject: [PATCH 27/50] pinctrl: pistachio: Use devm_pinctrl_register() for
+ pinctrl registration
+
+Use devm_pinctrl_register() for pin control registration.
+
+Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/pinctrl/pinctrl-pistachio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/pinctrl/pinctrl-pistachio.c
++++ b/drivers/pinctrl/pinctrl-pistachio.c
+@@ -1462,8 +1462,8 @@ static int pistachio_pinctrl_probe(struc
+ 	pistachio_pinctrl_desc.pins = pctl->pins;
+ 	pistachio_pinctrl_desc.npins = pctl->npins;
+ 
+-	pctl->pctldev = pinctrl_register(&pistachio_pinctrl_desc, &pdev->dev,
+-					 pctl);
++	pctl->pctldev = devm_pinctrl_register(&pdev->dev, &pistachio_pinctrl_desc,
++					      pctl);
+ 	if (IS_ERR(pctl->pctldev)) {
+ 		dev_err(&pdev->dev, "Failed to register pinctrl device\n");
+ 		return PTR_ERR(pctl->pctldev);

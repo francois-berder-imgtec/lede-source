@@ -1,0 +1,23 @@
+From ef5bf5b929e60b3a1728c4b1de0948ff2f527946 Mon Sep 17 00:00:00 2001
+From: Will Thomas <will.thomas@imgtec.com>
+Date: Fri, 5 Aug 2016 14:00:20 +0100
+Subject: [PATCH 43/50] crypto: img-hash - Fix set_reqsize call
+
+Properly allocate enough memory to respect the fallback.
+
+Signed-off-by: Will Thomas <will.thomas@imgtec.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+---
+ drivers/crypto/img-hash.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/crypto/img-hash.c
++++ b/drivers/crypto/img-hash.c
+@@ -686,6 +686,7 @@ static int img_hash_cra_init(struct cryp
+ 	}
+ 	crypto_ahash_set_reqsize(__crypto_ahash_cast(tfm),
+ 				 sizeof(struct img_hash_request_ctx) +
++				 crypto_ahash_reqsize(ctx->fallback) +
+ 				 IMG_HASH_DMA_THRESHOLD);
+ 
+ 	return 0;

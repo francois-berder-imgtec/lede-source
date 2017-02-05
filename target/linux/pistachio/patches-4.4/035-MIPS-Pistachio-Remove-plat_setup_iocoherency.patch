@@ -1,0 +1,75 @@
+From 6272acf62a027af5810e9b97aca0157e479e470f Mon Sep 17 00:00:00 2001
+From: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+Date: Fri, 3 Jun 2016 09:35:00 +0100
+Subject: [PATCH 35/50] MIPS: Pistachio: Remove plat_setup_iocoherency
+
+The Pistachio SoC does not have an IOCU.  Hence, DMA is non-coherent.
+
+Remove the function checking for iocoherency and select
+CONFIG_DMA_NONCOHERENT in Kconfig
+
+This code is probably accidentally inherited from Malta.
+
+Signed-off-by: Zubair Lutfullah Kakakhel <Zubair.Kakakhel@imgtec.com>
+Reviewed-by: James Hartley <james.hartley@imgtec.com>
+Cc: linux-mips@linux-mips.org
+Cc: linux-kernel@vger.kernel.org
+Patchwork: https://patchwork.linux-mips.org/patch/13433/
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+---
+ arch/mips/Kconfig          |  2 +-
+ arch/mips/pistachio/init.c | 25 -------------------------
+ 2 files changed, 1 insertion(+), 26 deletions(-)
+
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -385,7 +385,7 @@ config MACH_PISTACHIO
+ 	select CLKSRC_MIPS_GIC
+ 	select COMMON_CLK
+ 	select CSRC_R4K
+-	select DMA_MAYBE_COHERENT
++	select DMA_NONCOHERENT
+ 	select IRQ_MIPS_CPU
+ 	select LIBFDT
+ 	select MFD_SYSCON
+--- a/arch/mips/pistachio/init.c
++++ b/arch/mips/pistachio/init.c
+@@ -60,29 +60,6 @@ const char *get_system_type(void)
+ 	return sys_type;
+ }
+ 
+-static void __init plat_setup_iocoherency(void)
+-{
+-	/*
+-	 * Kernel has been configured with software coherency
+-	 * but we might choose to turn it off and use hardware
+-	 * coherency instead.
+-	 */
+-	if (mips_cm_numiocu() != 0) {
+-		/* Nothing special needs to be done to enable coherency */
+-		pr_info("CMP IOCU detected\n");
+-		hw_coherentio = 1;
+-		if (coherentio == 0)
+-			pr_info("Hardware DMA cache coherency disabled\n");
+-		else
+-			pr_info("Hardware DMA cache coherency enabled\n");
+-	} else {
+-		if (coherentio == 1)
+-			pr_info("Hardware DMA cache coherency unsupported, but enabled from command line!\n");
+-		else
+-			pr_info("Software DMA cache coherency enabled\n");
+-	}
+-}
+-
+ void __init *plat_get_fdt(void)
+ {
+ 	if (fw_arg0 != -2)
+@@ -93,8 +70,6 @@ void __init *plat_get_fdt(void)
+ void __init plat_mem_setup(void)
+ {
+ 	__dt_setup_arch(plat_get_fdt());
+-
+-	plat_setup_iocoherency();
+ }
+ 
+ #define DEFAULT_CPC_BASE_ADDR	0x1bde0000

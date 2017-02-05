@@ -1,0 +1,36 @@
+From 83d5699911cbffc6570db3a4165c32753adb31ac Mon Sep 17 00:00:00 2001
+From: "Damien.Horsley" <Damien.Horsley@imgtec.com>
+Date: Thu, 10 Dec 2015 14:40:11 +0000
+Subject: [PATCH 13/50] ASoC: img: Add binding document for Pistachio internal
+ DAC
+
+Add binding document for Pistachio Internal DAC
+
+Signed-off-by: Damien.Horsley <Damien.Horsley@imgtec.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ .../bindings/sound/img,pistachio-internal-dac.txt      | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/sound/img,pistachio-internal-dac.txt
+
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/img,pistachio-internal-dac.txt
+@@ -0,0 +1,18 @@
++Pistachio internal DAC DT bindings
++
++Required properties:
++
++  - compatible: "img,pistachio-internal-dac"
++
++  - img,cr-top : Must contain a phandle to the top level control syscon
++		 node which contains the internal dac control registers
++
++  - VDD-supply : Digital power supply regulator (+1.8V or +3.3V)
++
++Examples:
++
++internal_dac: internal-dac {
++	compatible = "img,pistachio-internal-dac";
++	img,cr-top = <&cr_top>;
++	VDD-supply = <&supply3v3>;
++};

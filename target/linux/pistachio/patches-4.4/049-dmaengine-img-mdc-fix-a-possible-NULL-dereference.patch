@@ -1,0 +1,41 @@
+From 060aef4206cb19a17255f74704bb983c92a39ed6 Mon Sep 17 00:00:00 2001
+From: LABBE Corentin <clabbe.montjoie@gmail.com>
+Date: Tue, 16 Aug 2016 10:44:18 +0200
+Subject: [PATCH 49/50] dmaengine: img-mdc: fix a possible NULL dereference
+
+of_match_device could return NULL, and so cause a NULL pointer
+dereference later at line 850:
+mdma->soc = match->data;
+
+For fixing this problem, we use of_device_get_match_data(), this will
+simplify the code a little by using a standard function for
+getting the match data.
+
+This was reported by coverity (CID 1324134)
+
+Signed-off-by: LABBE Corentin <clabbe.montjoie@gmail.com>
+Signed-off-by: Vinod Koul <vinod.koul@intel.com>
+---
+ drivers/dma/img-mdc-dma.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+--- a/drivers/dma/img-mdc-dma.c
++++ b/drivers/dma/img-mdc-dma.c
+@@ -861,7 +861,6 @@ static int mdc_dma_probe(struct platform
+ {
+ 	struct mdc_dma *mdma;
+ 	struct resource *res;
+-	const struct of_device_id *match;
+ 	unsigned int i;
+ 	u32 val;
+ 	int ret;
+@@ -871,8 +870,7 @@ static int mdc_dma_probe(struct platform
+ 		return -ENOMEM;
+ 	platform_set_drvdata(pdev, mdma);
+ 
+-	match = of_match_device(mdc_dma_of_match, &pdev->dev);
+-	mdma->soc = match->data;
++	mdma->soc = of_device_get_match_data(&pdev->dev);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	mdma->regs = devm_ioremap_resource(&pdev->dev, res);

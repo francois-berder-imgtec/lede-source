@@ -1,0 +1,60 @@
+From 0badea994c27a4e0b164286fe850af920e565a7b Mon Sep 17 00:00:00 2001
+From: "Damien.Horsley" <Damien.Horsley@imgtec.com>
+Date: Wed, 4 Nov 2015 14:40:53 +0000
+Subject: [PATCH 07/50] ASoC: img: Add binding document for SPDIF input
+ controller
+
+Add binding document for Imagination Technologies SPDIF
+input controller
+
+Signed-off-by: Damien.Horsley <Damien.Horsley@imgtec.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ .../devicetree/bindings/sound/img,spdif-in.txt     | 41 ++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/sound/img,spdif-in.txt
+
+--- /dev/null
++++ b/Documentation/devicetree/bindings/sound/img,spdif-in.txt
+@@ -0,0 +1,41 @@
++Imagination Technologies SPDIF Input Controller
++
++Required Properties:
++
++  - compatible : Compatible list, must contain "img,spdif-in"
++
++  - #sound-dai-cells : Must be equal to 0
++
++  - reg : Offset and length of the register set for the device
++
++  - dmas: Contains an entry for each entry in dma-names.
++
++  - dma-names: Must include the following entry:
++	"rx"
++
++  - clocks : Contains an entry for each entry in clock-names
++
++  - clock-names : Includes the following entries:
++	"sys"	The system clock
++
++Optional Properties:
++
++  - resets: Should contain a phandle to the spdif in reset signal, if any
++
++  - reset-names: Should contain the reset signal name "rst", if a
++	reset phandle is given
++
++  - interrupts : Contains the spdif in interrupt, if present
++
++Example:
++
++spdif_in: spdif-in@18100E00 {
++	compatible = "img,spdif-in";
++	reg = <0x18100E00 0x100>;
++	interrupts = <GIC_SHARED 20 IRQ_TYPE_LEVEL_HIGH>;
++	dmas = <&mdc 15 0xffffffff 0>;
++	dma-names = "rx";
++	clocks = <&cr_periph SYS_CLK_SPDIF_IN>;
++	clock-names = "sys";
++	#sound-dai-cells = <0>;
++};

@@ -1,0 +1,52 @@
+From 13b169cb15d345bdf6b3a1ed3696f5455fc45b1c Mon Sep 17 00:00:00 2001
+From: Matt Redfearn <matt.redfearn@imgtec.com>
+Date: Wed, 25 May 2016 12:58:40 +0100
+Subject: [PATCH 32/50] MIPS: Pistachio: Enable KASLR
+
+Allow KASLR to be selected on Pistachio based systems. Tested on a
+Creator Ci40.
+
+Signed-off-by: Matt Redfearn <matt.redfearn@imgtec.com>
+Reviewed-by: James Hogan <james.hogan@imgtec.com>
+Cc: Andrew Bresticker <abrestic@chromium.org>
+Cc: Jonas Gorski <jogo@openwrt.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-mips@linux-mips.org
+Patchwork: https://patchwork.linux-mips.org/patch/13356/
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
+---
+ arch/mips/Kconfig          | 1 +
+ arch/mips/pistachio/init.c | 8 ++++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -398,6 +398,7 @@ config MACH_PISTACHIO
+ 	select SYS_SUPPORTS_LITTLE_ENDIAN
+ 	select SYS_SUPPORTS_MIPS_CPS
+ 	select SYS_SUPPORTS_MULTITHREADING
++	select SYS_SUPPORTS_RELOCATABLE
+ 	select SYS_SUPPORTS_ZBOOT
+ 	select SYS_HAS_EARLY_PRINTK
+ 	select USE_GENERIC_EARLY_PRINTK_8250
+--- a/arch/mips/pistachio/init.c
++++ b/arch/mips/pistachio/init.c
+@@ -83,12 +83,16 @@ static void __init plat_setup_iocoherenc
+ 	}
+ }
+ 
+-void __init plat_mem_setup(void)
++void __init *plat_get_fdt(void)
+ {
+ 	if (fw_arg0 != -2)
+ 		panic("Device-tree not present");
++	return (void *)fw_arg1;
++}
+ 
+-	__dt_setup_arch((void *)fw_arg1);
++void __init plat_mem_setup(void)
++{
++	__dt_setup_arch(plat_get_fdt());
+ 
+ 	plat_setup_iocoherency();
+ }

@@ -1,0 +1,24 @@
+From 98aa5f6f74b08549e3da5ba1351b24b0efef6725 Mon Sep 17 00:00:00 2001
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Date: Fri, 5 Feb 2016 16:49:34 +0100
+Subject: [PATCH 22/50] reset: img: Make reset_control_ops const
+
+The pistachio_reset_ops structure is never modified. Make it const.
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Acked-by: James Hartley <james.hartley@imgtec.com>
+---
+ drivers/reset/reset-pistachio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/reset/reset-pistachio.c
++++ b/drivers/reset/reset-pistachio.c
+@@ -97,7 +97,7 @@ static int pistachio_reset_deassert(stru
+ 				  mask, 0);
+ }
+ 
+-static struct reset_control_ops pistachio_reset_ops = {
++static const struct reset_control_ops pistachio_reset_ops = {
+ 	.assert		= pistachio_reset_assert,
+ 	.deassert	= pistachio_reset_deassert,
+ };
