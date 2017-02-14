@@ -30,7 +30,7 @@ define KernelPackage/sound-pistachio-soc
 	$(LINUX_DIR)/sound/soc/img/pistachio-internal-dac.ko \
 	$(LINUX_DIR)/sound/soc/img/pistachio-event-timer.ko \
 	$(LINUX_DIR)/sound/soc/img/pistachio-event-timer-atu.ko
-  AUTOLOAD:=$(call AutoLoad,68,pistachio pistachio-internal-dac pistachio-event-timer-atu)
+  AUTOLOAD:=$(call AutoLoad,68,img-i2s-in img-i2s-out img-parallel-out img-spdif-in img-spdif-out pistachio-internal-dac pistachio-event-timer-atu pistachio)
   $(call AddDepends/sound)
 endef
 
