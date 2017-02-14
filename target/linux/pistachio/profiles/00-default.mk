@@ -8,7 +8,7 @@
 define Profile/Default
   NAME:=Default Profile
   PRIORITY:=1
-  PACKAGES:=
+  PACKAGES:=kmod-sound-pistachio-soc alsa-lib alsa-utils alsa-utils-tests
 endef
 
 define Profile/Default/Description
